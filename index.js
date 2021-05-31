@@ -2,6 +2,7 @@ const express = require('express')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const cookieParser = require('cookie-parser')
 
 const authRoute = require('./routes/AuthRoutes')
 dotenv.config()
@@ -28,6 +29,7 @@ mongoose.connection.once('open', () => {
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(morgan('dev'))
+app.use(cookieParser())
 
 app.use('/api/user', authRoute)
 

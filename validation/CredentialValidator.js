@@ -1,22 +1,22 @@
 const Joi = require('@hapi/joi')
 
 const registerValidator = (body) => {
-    const schema = {
+    const schema = Joi.object({
         name: Joi.string().min(6).required(),
-        email: Joi.string().min(6).required().email(),
+        email: Joi.string().min(6).required(),
         password: Joi.string().min(6).required()
-    }
+    })
 
-    return Joi.valid(body, schema)
+    return schema.validate(body)
 }
 
 const loginValidator = (body) => {
-    const schema = {
-        email: Joi.string().min(6).required(),
-        password: Joi.string().min(6).required()
-    }
+   const schema = Joi.object({
+       email: Joi.string().min(6).required(),
+       password: Joi.string().min(6).required()
+   })
 
-    return Joi.valid(body, schema)
+   return schema.validate(body)
 }   
 
 module.exports = {

@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose') 
-const bcrypt = require('bcryptjs')
+const { genSalt, hash, compare } = require('bcryptjs')
 const { isEmail } = require('validator')
 
 const userSchema = new Schema({
@@ -25,18 +25,11 @@ const userSchema = new Schema({
     }
 }, {timestamps: true})
 
-const User = model('User', userSchema)
-
+// this refers to document not query
 userSchema.pre('save', async function(next) {
     try {
-        const user = await this.findOne({email: this.email}).exec();
-
-        if (user) {
-            throw new Error('User exists')
-        }
-
-        const salt = await bcrypt.genSalt(12);
-        this.password = await bcrypt.hash(salt, this.password)
+        const salt = await genSalt(12)
+        this.password = await hash(this.password, salt)
         next()
     } catch (err) {
         console.log(err)
@@ -45,28 +38,25 @@ userSchema.pre('save', async function(next) {
 
 userSchema.post('save', function(doc, next) {
     console.log(doc)
-    next();
+    next()
 })
 
 userSchema.statics.login = async function(email, password) {
-    try {
-        const user = await this.findOne({email}).exec();
+    const user = await this.findOne({email}).exec()
 
-        if (!user) {
-            throw new Error('User does not exist try again')   
-        }
+    if (!user) {
+        throw new Error('User does not exist try again')   
+    }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await compare(password, user.password);
 
-        if (isMatch) {
-            return user;
-        } else {
-            throw new Error('Wrong password')
-        }
-    
-    } catch (err) {
-        console.log(err)
+    if (isMatch) {
+        return user
+    } else {
+        throw new Error('Wrong password')
     }
 }
 
-module.exports = User;
+const User = model('User', userSchema)
+
+module.exports = User
