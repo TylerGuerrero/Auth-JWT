@@ -7,7 +7,7 @@ const { authCheck } = require('../middleware/AuthCheck')
 
 router.get('/user', authCheck, async (req, res) => {
     try {
-        const user =  await User.findById(req.user._id).exec()
+        const user = await User.findById(req.user._id).exec()
         return res.status(200).send({user})
     } catch (err) {
         return res.status(400).send({err: err.message})
